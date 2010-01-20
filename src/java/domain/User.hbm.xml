@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Jan 20, 2010 12:31:26 AM by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+  <class catalog="catalog" name="domain.User" table="users">
+    <id name="id" type="int">
+      <column name="id"/>
+      <generator class="increment"/>
+    </id>
+    <many-to-one class="domain.Grupa" fetch="select" name="groups">
+      <column name="group_id" not-null="true"/>
+    </many-to-one>
+    <property name="username" type="string">
+      <column name="username" not-null="true"/>
+    </property>
+    <property name="firstname" type="string">
+      <column name="firstname" not-null="true"/>
+    </property>
+    <property name="lastname" type="string">
+      <column name="lastname" not-null="true"/>
+    </property>
+    <property name="password" type="string">
+      <column name="password" not-null="true"/>
+    </property>
+    <property name="confirmpassword" type="string">
+      <column name="confirmpassword" not-null="true"/>
+    </property>
+    <property name="email" type="string">
+      <column name="email" not-null="true"/>
+    </property>
+    <property name="created" type="timestamp">
+      <column length="19" name="created" not-null="true"/>
+    </property>
+    <property name="modified" type="timestamp">
+      <column length="19" name="modified" not-null="true"/>
+    </property>
+    <property name="enabled" type="int">
+      <column name="enabled" not-null="true"/>
+    </property>
+    <set inverse="false" name="rangieses" table="usersrangies">
+      <key>
+        <column name="user_id" not-null="true"/>
+      </key>
+      <many-to-many entity-name="domain.Range">
+        <column name="range_id" not-null="true"/>
+      </many-to-many>
+    </set>
+  </class>
+</hibernate-mapping>

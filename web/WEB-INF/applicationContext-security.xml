@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  - Sample namespace-based configuration
+  -
+  - $Id: applicationContext-security.xml 3019 2008-05-01 17:51:48Z luke_t $
+  -->
+
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+	xmlns:beans="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+                        http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.4.xsd">
+
+        <beans:import resource="applicationContext.xml"/>
+
+        <http auto-config="true" access-denied-page="/accessdenied.htm">
+            <intercept-url pattern="/users/**" access="ROLE_USER" />
+            <intercept-url pattern="/admin/**" access="ROLE_ADMIN" />
+            <form-login login-page="/login.htm" authentication-failure-url="/login.htm?login_error=1" default-target-url="/index.htm" always-use-default-target="true"/>
+	</http>
+
+	<authentication-provider>
+            <password-encoder hash="md5" />
+		<!--<user-service id="userDetailsService">
+			<user name="username" password="password" authorities="ROLE_USER, ROLE_ADMIN" />
+			<user name="test" password="test" authorities="ROLE_USER" />
+		</user-service>-->
+            <jdbc-user-service data-source-ref="myDataSource" authorities-by-username-query="select `users`.`username`, `authorities`.`authority` from `users`, `authorities`, `groups` where `groups`.`authority_id` = `authorities`.`id` and `groups`.`id` = `users`.`group_id` and username=?" />
+	</authentication-provider>
+
+
+</beans:beans>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Jan 20, 2010 12:31:26 AM by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+  <class catalog="catalog" name="domain.Grupa" table="groups">
+    <id name="id" type="int">
+      <column name="id"/>
+      <generator class="increment"/>
+    </id>
+    <many-to-one class="domain.Authority" fetch="select" name="authoritieses">
+      <column name="authority_id" not-null="true" />
+    </many-to-one>
+    <property name="name" type="string">
+      <column name="name" not-null="true"/>
+    </property>
+    <property name="created" type="timestamp">
+      <column length="19" name="created" not-null="true"/>
+    </property>
+    <property name="modified" type="timestamp">
+      <column length="19" name="modified" not-null="true"/>
+    </property>
+    <set inverse="true" name="userses">
+      <key>
+        <column name="group_id" not-null="true"/>
+      </key>
+      <one-to-many class="domain.User"/>
+    </set>
+  </class>
+</hibernate-mapping>

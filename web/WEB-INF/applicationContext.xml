@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+
+        http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+    <bean id="defaultLocale" class="java.util.Locale">
+        <constructor-arg value="pl" />
+    </bean>
+
+    <bean id="localeResolver" class="org.springframework.web.servlet.i18n.SessionLocaleResolver">
+        <property name="defaultLocale" ref="defaultLocale" />
+    </bean>
+
+    <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="locations">
+            <list>
+                <value>classpath:jdbc.properties</value>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="myDataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+      <property name="driverClassName" value="${jdbc.driverClassName}"/>
+      <property name="url" value="${jdbc.url}"/>
+      <property name="username"  value="${jdbc.username}"/>
+      <property name="password" value="${jdbc.password}"/>
+    </bean>
+
+    <bean id="mySessionFactory" class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
+        <property name="dataSource" ref="myDataSource" />
+        <property name="mappingResources">
+            <list>
+                <value>domain/User.hbm.xml</value>
+                <value>domain/Range.hbm.xml</value>
+                <value>domain/Grupa.hbm.xml</value>
+                <value>domain/Authority.hbm.xml</value>
+            </list>
+        </property>
+        <property name="annotatedClasses">
+            <list>
+                <value>domain.User</value>
+                <value>domain.Range</value>
+                <value>domain.Grupa</value>
+                <value>domain.Authority</value>
+            </list>
+        </property>
+        <property name="hibernateProperties">
+            <props>
+                <prop key="hibernate.dialect"> org.hibernate.dialect.MySQLDialect</prop>
+                <prop key="hibernate.show_sql">true</prop>
+                <!--<prop key="hibernate.hbm2ddl.auto">create</prop>-->
+                <prop key="hibernate.connection.useUnicode">true</prop>
+                <prop key="hibernate.connection.charSet">UTF8</prop>
+                <prop key="hibernate.connection.pool_size">1</prop>
+            </props>
+        </property>
+    </bean>
+
+    <bean id="reportViewResolver" class="org.springframework.web.servlet.view.ResourceBundleViewResolver">
+        <property name="order" value="1"/>
+    </bean>
+
+    <bean id="reportController" class="web.ReportController">
+        <property name="methodNameResolver" ref="resolver"/>
+    </bean>
+
+    <bean id="resolver" class="org.springframework.web.servlet.mvc.multiaction.PropertiesMethodNameResolver">
+        <property name="mappings">
+            <props>
+                <prop key="/userReport.*">viewReport</prop>
+            </props>
+        </property>
+    </bean>
+
+    <bean id="reportView" class="org.springframework.web.servlet.view.jasperreports.JasperReportsMultiFormatView">
+        <property name="url" value="/WEB-INF/report/report1.jasper"/>
+        <property name="jdbcDataSource" ref="myDataSource"/>
+    </bean>
+
+
+    <bean id="pdfView" class="org.springframework.web.servlet.view.jasperreports.JasperReportsPdfView">
+        <property name="jdbcDataSource" ref="myDataSource"/>
+        <property name="url" value="/WEB-INF/report/report1.jasper" />
+    </bean>
+
+    <bean id="xlsView" class="org.springframework.web.servlet.view.jasperreports.JasperReportsXlsView">
+        <property name="jdbcDataSource" ref="myDataSource"/>
+        <property name="url" value="/WEB-INF/report/report1.jasper" />
+    </bean>
+
+    <bean id="userValidator" class="validator.UserValidator">
+        <property name="userDAO" ref="myUserDAO" />
+    </bean>
+
+    <bean id="myUserDAO" class="dao.UserDAOImpl">
+        <property name="sessionFactory" ref="mySessionFactory"/>
+    </bean>
+
+    <bean name="userController" class="web.UserController">
+        <property name="userDAO" ref="myUserDAO" />
+        <property name="commandClass" value="domain.User" />
+        <property name="successView" value="list.htm" />
+        <property name="formView" value="userForm" />
+        <property name="validator" ref="userValidator"/>
+    </bean>
+
+    <bean name="userListController" class="web.UserListController">
+        <property name="userDAO" ref="myUserDAO" />
+    </bean>
+
+    <bean name="loginController" class="web.LoginController">
+        <property name="userDAO" ref="myUserDAO" />
+        <property name="sessionForm"><value>true</value></property>
+        <property name="commandClass"><value>domain.User</value></property>
+        <property name="formView"><value>login</value></property>
+    </bean>
+
+    <bean id="myGroupDAO" class="dao.GroupDAOImpl">
+        <property name="sessionFactory" ref="mySessionFactory"/>
+    </bean>
+
+    <bean id="myRangeDAO" class="dao.RangeDAOImpl">
+        <property name="sessionFactory" ref="mySessionFactory"/>
+    </bean>
+
+    <bean id="groupValidator" class="validator.GroupValidator"/>
+
+    <bean name="groupController" class="web.GroupController">
+        <property name="groupDAO" ref="myGroupDAO" />
+        <property name="authorityDAO" ref="myAuthorityDAO" />
+        <property name="commandClass" value="domain.Grupa" />
+        <property name="successView" value="list.htm" />
+        <property name="validator" ref="groupValidator"/>
+        <property name="formView" value="groupForm" />
+    </bean>
+
+    <bean name="groupListController" class="web.GroupListController">
+        <property name="groupDAO" ref="myGroupDAO" />
+    </bean>
+
+    <bean id="rangeValidator" class="validator.RangeValidator"/>
+
+    <bean name="rangeController" class="web.RangeController">
+        <property name="rangeDAO" ref="myRangeDAO" />
+        <property name="commandClass" value="domain.Range" />
+        <property name="successView" value="list.htm" />
+        <property name="validator" ref="rangeValidator"/>
+        <property name="formView" value="rangeForm" />
+    </bean>
+
+    <bean name="rangeListController" class="web.RangeListController">
+        <property name="rangeDAO" ref="myRangeDAO" />
+    </bean>
+
+    <bean name="myAuthorityDAO" class="dao.AuthorityDAOImpl">
+        <property name="sessionFactory" ref="mySessionFactory"/>
+    </bean>
+
+    <bean name="myprofileController" class="web.MyProfileController">
+        <property name="userDAO" ref="myUserDAO" />
+    </bean>
+
+    <bean name="indexController" class="web.IndexController">
+        <property name="userDAO" ref="myUserDAO" />
+        <property name="pdfView" ref="pdfView" />
+        <property name="xlsView" ref="xlsView" />
+    </bean>
+
+</beans>
